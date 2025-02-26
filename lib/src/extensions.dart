@@ -1,4 +1,4 @@
-import 'package:pinecone/src/generated/schema/schema.dart';
+import 'package:pineconedb/src/generated/schema/schema.dart';
 
 // ==========================================
 // EXTENSION: Index

@@ -1,9 +1,11 @@
 // ignore_for_file: unused_local_variable, avoid_print
 import 'dart:io';
-import 'package:pinecone/pinecone.dart';
+
+import 'package:pineconedb/pineconedb.dart';
 
 // Create a client instance with an API key
 final client = PineconeClient(
+  baseUrl: "https:/host-id.svc.gcp-us-central1-otherid.pinecone.io",
   apiKey: Platform.environment['PINECONE_API_KEY'] ?? '',
 );
 

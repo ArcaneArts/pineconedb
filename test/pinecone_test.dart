@@ -1,6 +1,7 @@
 @Timeout(Duration(minutes: 10))
 import 'dart:io';
-import 'package:pinecone/pinecone.dart';
+
+import 'package:pineconedb/pineconedb.dart';
 import 'package:test/test.dart';
 
 void main() async {
