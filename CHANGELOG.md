@@ -1,3 +1,6 @@
+# 1.0.1
+* Resource exhausted support for upsert text
+
 # 1.0.0 (Rewrite)
 * Added support to upsert text in namespace
 * Added support to query text in namespace

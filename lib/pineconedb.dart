@@ -123,7 +123,10 @@ class PineconeClient {
     }
   }
 
-  Future<bool> upsertText({
+  /// Returns false if it failed
+  /// Returns null if RESOURCE_EXHAUSTED 429
+  /// Returns true if it succeeded
+  Future<bool?> upsertText({
     required String namespace,
     required List<UpsertText> upserts,
   }) =>
@@ -134,9 +137,13 @@ class PineconeClient {
             "Content-Type": "application/x-ndjson",
           },
           queryParameters: {}).then((i) {
+        if (i.statusCode == 429) {
+          return null;
+        }
+
         if (!i.ok) {
           print("${i.statusCode} ${i.body}");
-          throw i;
+          return false;
         }
 
         try {
