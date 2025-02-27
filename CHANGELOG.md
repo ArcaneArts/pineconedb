@@ -1,4 +1,13 @@
-# Changelog
+# 1.0.0 (Rewrite)
+* Added support to upsert text in namespace
+* Added support to query text in namespace
+* Added support to delete vectors by id or all in namespace
+* Added support to fetch vectors by ids in namespace 
+* Added support to list vector ids by prefix in namespace
+
+---
+ 
+Below is from the pub package pinecone. These changes are no longer in pineconedb
 
 ## 0.7.2
 
