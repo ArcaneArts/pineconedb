@@ -1,3 +1,6 @@
+# 1.0.2
+* Allow reranking to be disabled on SearchText.basic
+
 # 1.0.1
 * Resource exhausted support for upsert text
 
