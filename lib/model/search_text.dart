@@ -35,6 +35,7 @@ class SearchText with SearchTextMappable {
   factory SearchText.basic({
     required String query,
     required String textKey,
+    bool rerank = true,
     int topK = 10,
     int rerankTopK = 5,
     String rerankModel = "bge-reranker-v2-m3",
@@ -49,7 +50,7 @@ class SearchText with SearchTextMappable {
         topK: topK,
         rerankTopK: rerankTopK,
         rerankModel: rerankModel,
-        rerankInput: query,
+        rerankInput: rerank ? query : null,
         rerankReturnFields: [
           textKey,
         ],
