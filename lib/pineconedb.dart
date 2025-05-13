@@ -48,18 +48,38 @@ class PineconeClient {
     required Object? body,
     Map<String, String> headers = const {},
     Map<String, dynamic> queryParameters = const {},
-  }) =>
-      http.post(
-          Uri.parse("$host$path").replace(
-            queryParameters: {
-              ...queryParameters,
-            },
-          ),
-          headers: {
-            ...headers,
-            "Api-Key": apiKey,
+  }) {
+    return http.post(
+        Uri.parse("$host$path").replace(
+          queryParameters: {
+            ...queryParameters,
           },
-          body: body);
+        ),
+        headers: {
+          ...headers,
+          "Api-Key": apiKey,
+        },
+        body: body);
+  }
+
+  Future<http.Response> postMain({
+    required String path,
+    required Object? body,
+    Map<String, String> headers = const {},
+    Map<String, dynamic> queryParameters = const {},
+  }) {
+    return http.post(
+        Uri.parse("https://api.pinecone.io$path").replace(
+          queryParameters: {
+            ...queryParameters,
+          },
+        ),
+        headers: {
+          ...headers,
+          "Api-Key": apiKey,
+        },
+        body: body);
+  }
 
   Future<http.Response> get({
     required String path,
@@ -253,10 +273,103 @@ class PineconeClient {
 
         return SearchResultMapper.fromMap(jsonDecode(i.body)["result"]);
       });
+
+  Future<List<List<double>>> embedTexts({
+    String model = "llama-text-embed-v2",
+    required int dimension,
+    required List<String> texts,
+    Map<String, dynamic> parameters = const {},
+  }) =>
+      postMain(
+        path: "/embed",
+        body: jsonEncode({
+          "model": model,
+          "parameters": {
+            "input_type": "passage",
+            "truncate": "NONE",
+            "dimension": dimension
+          },
+          "inputs":
+              texts.map((String t) => <String, String>{"text": t}).toList(),
+          if (parameters.isNotEmpty) "parameters": parameters,
+        }),
+        headers: <String, String>{
+          "Content-Type": "application/json",
+          "X-Pinecone-API-Version": "2025-04"
+        },
+        queryParameters: const <String, dynamic>{},
+      ).then((http.Response i) {
+        if (!i.ok) {
+          print("${i.statusCode} ${i.body}");
+          throw i;
+        }
+
+        Map<String, dynamic> body = jsonDecode(i.body) as Map<String, dynamic>;
+        try {
+          usage.apply(body);
+        } catch (e, es) {}
+        return (body["data"] as List)
+            .map((i) => ((i as Map<String, dynamic>)["values"] as List)
+                .whereType<double>()
+                .toList())
+            .toList();
+      });
+
+  Future<bool> upsertVectors({
+    required String namespace,
+    required List<UpsertVectorRequest> vectors,
+  }) =>
+      post(
+        path: "/vectors/upsert",
+        body: jsonEncode(<String, dynamic>{
+          "namespace": namespace,
+          "vectors": vectors.map((i) => i.toPMap()).toList(),
+        }),
+        headers: <String, String>{
+          "Content-Type": "application/json",
+          "X-Pinecone-API-Version": "2025-04"
+        },
+        queryParameters: const <String, dynamic>{},
+      ).then((http.Response i) {
+        if (i.statusCode == 429) {
+          return false;
+        }
+
+        if (!i.ok) {
+          print("${i.statusCode} ${i.body}");
+          return false;
+        }
+
+        try {
+          usage.apply(jsonDecode(i.body) as Map<String, dynamic>);
+        } catch (e, es) {}
+
+        return true;
+      });
 }
 
 extension IsOk on http.Response {
   bool get ok {
     return (statusCode ~/ 100) == 2;
+  }
+}
+
+class UpsertVectorRequest {
+  final List<double> vector;
+  final String id;
+  final Map<String, dynamic> metadata;
+
+  UpsertVectorRequest({
+    required this.vector,
+    required this.id,
+    this.metadata = const {},
+  });
+
+  Map<String, dynamic> toPMap() {
+    return {
+      "id": id,
+      "values": vector,
+      "metadata": metadata,
+    };
   }
 }

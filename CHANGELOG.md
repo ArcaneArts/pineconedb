@@ -1,3 +1,6 @@
+# 1.0.3
+* Allow embedding directly and upserting vectors 
+
 # 1.0.2
 * Allow reranking to be disabled on SearchText.basic
 
