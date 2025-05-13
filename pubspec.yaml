@@ -1,6 +1,6 @@
 name: pineconedb
 description: Unofficial Dart client for Pinecone vector database. For more details on Pinecone, please visit https://docs.pinecone.io/docs/overview.
-version: 1.0.3
+version: 1.0.4
 maintainer: Arcane Arts Inc.
 repository: https://github.com/ArcaneArts/pineconedb
 issue_tracker: https://github.com/ArcaneArts/pineconedb/issues

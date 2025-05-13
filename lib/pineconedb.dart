@@ -274,10 +274,50 @@ class PineconeClient {
         return SearchResultMapper.fromMap(jsonDecode(i.body)["result"]);
       });
 
+  Future<List<ResultScoredVector>> searchVectors({
+    required String namespace,
+    int topK = 10,
+    required List<double> vector,
+    Map<String, dynamic>? filter,
+  }) =>
+      post(
+          path: "/query",
+          body: jsonEncode({
+            "namespace": namespace,
+            "vector": vector,
+            "includeMetadata": false,
+            "topK": topK,
+            "includeValues": false,
+            if (filter != null) "filter": filter,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Pinecone-API-Version": "2025-04"
+          },
+          queryParameters: {}).then((i) {
+        if (!i.ok) {
+          print("${i.statusCode} ${i.body}");
+          throw i;
+        }
+
+        try {
+          usage.apply(jsonDecode(i.body));
+        } catch (e) {}
+
+        Map<String, dynamic> body = jsonDecode(i.body) as Map<String, dynamic>;
+        List<ResultScoredVector> result = (body["matches"] as List)
+            .map((v) => ResultScoredVector.fromMap(v as Map<String, dynamic>))
+            .toList();
+        result.sort((a, b) => b.score.compareTo(a.score));
+
+        return result;
+      });
+
   Future<List<List<double>>> embedTexts({
     String model = "llama-text-embed-v2",
     required int dimension,
     required List<String> texts,
+    String inputType = "passage", // or "query"
     Map<String, dynamic> parameters = const {},
   }) =>
       postMain(
@@ -285,7 +325,7 @@ class PineconeClient {
         body: jsonEncode({
           "model": model,
           "parameters": {
-            "input_type": "passage",
+            "input_type": inputType,
             "truncate": "NONE",
             "dimension": dimension
           },
@@ -371,5 +411,22 @@ class UpsertVectorRequest {
       "values": vector,
       "metadata": metadata,
     };
+  }
+}
+
+class ResultScoredVector {
+  final String id;
+  final double score;
+
+  ResultScoredVector({
+    required this.id,
+    required this.score,
+  });
+
+  factory ResultScoredVector.fromMap(Map<String, dynamic> map) {
+    return ResultScoredVector(
+      id: map["id"].toString(),
+      score: map["score"]?.toDouble() ?? 0.0,
+    );
   }
 }

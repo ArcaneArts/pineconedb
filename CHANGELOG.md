@@ -1,3 +1,6 @@
+# 1.0.4
+* Allow searching with a vector
+
 # 1.0.3
 * Allow embedding directly and upserting vectors 
 
