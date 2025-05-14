@@ -12,6 +12,7 @@ class PineconeUsage {
   int readUnits = 0;
   int embedTotalTokens = 0;
   int rerankUnits = 0;
+  int writeUnits = 0;
 
   void apply(Map<String, dynamic> body) {
     if (body.containsKey("usage")) {
@@ -23,6 +24,14 @@ class PineconeUsage {
 
       if (usage.containsKey("readUnits")) {
         readUnits += usage["readUnits"] as int;
+      }
+
+      if (usage.containsKey("write_units")) {
+        writeUnits += usage["write_units"] as int;
+      }
+
+      if (usage.containsKey("writeUnits")) {
+        writeUnits += usage["writeUnits"] as int;
       }
 
       if (usage.containsKey("embed_total_tokens")) {

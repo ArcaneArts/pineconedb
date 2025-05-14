@@ -1,3 +1,6 @@
+# 1.0.5
+* Write units
+
 # 1.0.4
 * Allow searching with a vector
 
